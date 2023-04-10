@@ -1,0 +1,49 @@
+{
+  "name": "template",
+  "version": "0.0.0",
+  "description": "template",
+  "main": "index.js",
+  "bin": {
+    "template": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "vitest --globals"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/node-mvc/ongo/template.git"
+  },
+  "keywords": [
+    "template",
+    "transform",
+    "duplex",
+    "stream",
+    "eventEmitter"
+  ],
+  "author": "Ericson S. weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/node-mvc/ongo/template/issues"
+  },
+  "homepage": "https://gitlab.com/node-mvc/ongo/template#readme",
+  "devDependencies": {
+    "vitest": "^0.24.0"
+  },
+  "dependencies": {
+    "db-schema": "file:../mongodb-model/modules/db-schema",
+    "dotenv": "16.0.3",
+    "express": "4.18.1",
+    "http-route": "file:../http-route",
+    "ioredis": "5.2.3",
+    "mail-template-class": "file:../mail/modules/mail-template-class",
+    "mailgun-mail": "file:../mail/modules/mailgun-mail",
+    "mongodb-model": "file:../mongodb-model",
+    "socket": "file:../socket",
+    "socket.io-redis": "6.1.1"
+  }
+}

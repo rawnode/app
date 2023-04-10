@@ -1,0 +1,31 @@
+{
+  "name": "@zerodependency/config",
+  "version": "0.0.0",
+  "description": "config",
+  "main": "index.js",
+  "bin": {
+    "config": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ericson-weah-dev/config.git"
+  },
+  "keywords": [
+    "config",
+    "transform"
+  ],
+  "author": "Ericson S. Weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ericson-weah-dev/config/issues"
+  },
+  "homepage": "https://github.com/ericson-weah-dev/config#readme"
+}

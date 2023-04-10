@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 bfc9cbade815eb2addf5e8e84cb59c4a6fd612e7 Afros In Tech <afrosintech@gmail.com> 1665248945 -0600	commit (initial): Fresh start
+bfc9cbade815eb2addf5e8e84cb59c4a6fd612e7 02616df1b4b8212d14dcda330095a3abaaba82fc Afros In Tech <afrosintech@gmail.com> 1666290766 -0600	commit: refractored dependencies
+02616df1b4b8212d14dcda330095a3abaaba82fc 02616df1b4b8212d14dcda330095a3abaaba82fc Afros In Tech <afrosintech@gmail.com> 1666382692 -0600	checkout: moving from master to feature
+02616df1b4b8212d14dcda330095a3abaaba82fc 02616df1b4b8212d14dcda330095a3abaaba82fc Afros In Tech <afrosintech@gmail.com> 1666382695 -0600	checkout: moving from feature to fresh
+02616df1b4b8212d14dcda330095a3abaaba82fc 02616df1b4b8212d14dcda330095a3abaaba82fc Afros In Tech <afrosintech@gmail.com> 1666382706 -0600	checkout: moving from fresh to dev-master
+02616df1b4b8212d14dcda330095a3abaaba82fc 02616df1b4b8212d14dcda330095a3abaaba82fc Afros In Tech <afrosintech@gmail.com> 1666382709 -0600	checkout: moving from dev-master to dev
+02616df1b4b8212d14dcda330095a3abaaba82fc 12c227749ed4c38a8e0849e6d3b2958491ac2ec3 Afros In Tech <afrosintech@gmail.com> 1666621558 -0600	commit: refractored cli

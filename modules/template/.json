@@ -1,0 +1,5 @@
+"@afrosintech/db-schema": "^0.0.10",
+"@afrosintech/http-route": "^0.0.10",
+"@afrosintech/mail-template-class": "^0.0.10",
+"@afrosintech/mailgun-mail": "^0.0.10",
+"@afrosintech/socket": "^0.0.10",

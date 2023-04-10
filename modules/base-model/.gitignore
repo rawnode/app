@@ -1,0 +1,5 @@
+/node_modules
+.list.txt
+/lab
+/src/modules/*/"^.git"
+/packages

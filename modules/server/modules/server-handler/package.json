@@ -1,0 +1,31 @@
+{
+  "name": "@zerodependency/server-handler",
+  "version": "0.0.10",
+  "description": "server-handler",
+  "main": "index.js",
+  "bin": {
+    "server-handler": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ericson-weah-dev/server-handler.git"
+  },
+  "keywords": [
+    "server-handler",
+    "transform"
+  ],
+  "author": "Ericson S. Weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ericson-weah-dev/server-handler/issues"
+  },
+  "homepage": "https://github.com/ericson-weah-dev/server-handler#readme"
+}

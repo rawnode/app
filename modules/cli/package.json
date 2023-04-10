@@ -1,0 +1,35 @@
+{
+  "name": "cli",
+  "version": "0.0.0",
+  "description": "cli",
+  "private": true,
+  "main": "index.js",
+  "bin": {
+    "cli": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/mongodb-model/cli.git"
+  },
+  "keywords": [
+    "cli",
+    "transform",
+    "duplex",
+    "stream",
+    "eventEmitter"
+  ],
+  "author": "Ericson S. weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/mongodb-model/cli/issues"
+  },
+  "homepage": "https://gitlab.com/mongodb-model/cli#readme"
+}

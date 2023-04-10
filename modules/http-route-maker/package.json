@@ -1,0 +1,43 @@
+{
+  "name": "http-route-maker",
+  "version": "0.0.0",
+  "description": "http-route-maker",
+  "main": "index.js",
+  "bin": {
+    "http-route-maker": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "vitest --globals"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/node-mvc/ongo/http-route-maker.git"
+  },
+  "keywords": [
+    "http-route-maker",
+    "http",
+    "transform",
+    "duplex",
+    "stream",
+    "eventEmitter"
+  ],
+  "author": "Ericson S. weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/node-mvc/ongo/http-route-maker/issues"
+  },
+  "homepage": "https://gitlab.com/node-mvc/ongo/http-route-maker#readme",
+  "dependencies": {
+    "controller": "file:../controller",
+    "http-controller": "file:../http-controller",
+    "lib": "file:../lib"
+  },
+  "devDependencies": {
+    "vitest": "^0.24.3"
+  }
+}

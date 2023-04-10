@@ -1,0 +1,31 @@
+{
+  "name": "@zerodependency/base",
+  "version": "0.0.0",
+  "description": "base",
+  "main": "index.js",
+  "bin": {
+    "base": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ericson-weah-dev/base.git"
+  },
+  "keywords": [
+    "base",
+    "transform"
+  ],
+  "author": "Ericson S. Weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ericson-weah-dev/base/issues"
+  },
+  "homepage": "https://github.com/ericson-weah-dev/base#readme"
+}

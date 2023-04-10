@@ -1,0 +1,31 @@
+{
+  "name": "@zerodependency/router",
+  "version": "0.0.0",
+  "description": "router",
+  "main": "index.js",
+  "bin": {
+    "router": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ericson-weah-dev/router.git"
+  },
+  "keywords": [
+    "router",
+    "transform"
+  ],
+  "author": "Ericson S. Weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ericson-weah-dev/router/issues"
+  },
+  "homepage": "https://github.com/ericson-weah-dev/router#readme"
+}

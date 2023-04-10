@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 593648f06ee5c3ce7539d475874501438c3bb9e4 Afros In Tech <afrosintech@gmail.com> 1666625556 -0600	commit (initial): Fresh install
+593648f06ee5c3ce7539d475874501438c3bb9e4 593648f06ee5c3ce7539d475874501438c3bb9e4 Afros In Tech <afrosintech@gmail.com> 1666625574 -0600	checkout: moving from master to dev-master
+593648f06ee5c3ce7539d475874501438c3bb9e4 593648f06ee5c3ce7539d475874501438c3bb9e4 Afros In Tech <afrosintech@gmail.com> 1666625576 -0600	checkout: moving from dev-master to fresh
+593648f06ee5c3ce7539d475874501438c3bb9e4 593648f06ee5c3ce7539d475874501438c3bb9e4 Afros In Tech <afrosintech@gmail.com> 1666625579 -0600	checkout: moving from fresh to feature
+593648f06ee5c3ce7539d475874501438c3bb9e4 593648f06ee5c3ce7539d475874501438c3bb9e4 Afros In Tech <afrosintech@gmail.com> 1666625583 -0600	checkout: moving from feature to dev
+593648f06ee5c3ce7539d475874501438c3bb9e4 59c63f36a84ee0f89feb9ee556870a39c81bc077 Afros In Tech <afrosintech@gmail.com> 1666626036 -0600	commit: Refractored cli

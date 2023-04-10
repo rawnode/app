@@ -1,0 +1,34 @@
+{
+  "name": "controller",
+  "version": "0.0.0",
+  "description": "controller",
+  "main": "index.js",
+  "bin": {
+    "controller": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "vitest --globals"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/node-mvc/ongo/controller.git"
+  },
+  "keywords": [
+    "controller",
+    "transform",
+    "duplex",
+    "stream",
+    "eventEmitter"
+  ],
+  "author": "Ericson S. weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/node-mvc/ongo/controller/issues"
+  },
+  "homepage": "https://gitlab.com/node-mvc/ongo/controller#readme"
+}
