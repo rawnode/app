@@ -1,0 +1,44 @@
+{
+  "name": "@rawnode/app",
+  "version": "0.0.0",
+  "description": "Raw NodeJs MVC Framework (rawnode)",
+  "main": "index.js",
+  "bin": {
+    "app": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/rawnode/app.git"
+  },
+  "keywords": [
+    "\"Raw",
+    "NodeJs\"",
+    "\"Zero",
+    "Dependency\"",
+    "\"No",
+    "Third",
+    "Party",
+    "Package\"",
+    "\"No",
+    "Framework\"",
+    "\"No",
+    "Library\"",
+    "\"No",
+    "CDN\""
+  ],
+  "author": "Ericson S. Weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rawnode/app/issues"
+  },
+  "homepage": "https://github.com/rawnode/app#readme"
+}
