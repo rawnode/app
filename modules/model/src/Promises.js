@@ -56,7 +56,7 @@ class Promises extends require("../../base") {
     cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
 
     async promiseAll(results = [], path = this.path('/databases/all.js')) {
-        return console.log(results)
+       
         return await new Promise((resolve, reject) => {
           unlink(path, err => {
             if (err) {

@@ -304,9 +304,9 @@ module.exports = Model;
 
 (async () => {
   const City  = new Model({collection: 'cities'})
-  // const cities = await City.getAll();
+  const cities = await City.getAll();
   const city = await City.findById('635919e22bc9cdd44701ee88')
-  console.log(city)
+  console.log(cities)
 })()
 
 
