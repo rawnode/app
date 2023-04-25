@@ -10,34 +10,19 @@
  *    phone: +1.385.204.5167
  *    Website: https://www.ericsonweah.dev
  * 
- * @module Model
+ * @module Builder
  * @kind class
  *
  * @extends Base
  * @requires Base
  *
- * @classdesc Model class
+ * @classdesc Builder class
  */
 
-// const Query = require('./src/Query')
 
+require('../../dotenv').config();
 
-
-
-const { createWriteStream, existsSync, unlink } = require('fs')
-const util = require('node:util');
-const exec = util.promisify(require('node:child_process').exec);
-
-require('../dotenv').config();
-
-
-
-const Promises = require('./src/Promises')
-const Executer = require('./src/Executer')
-const Builder = require('./src/Builder')
-const Query = require('./src/Query')
-
-class Model extends require("../base") {
+class Builder extends require("../../base") {
 
   constructor(...arrayOfObjects) {
 
@@ -50,14 +35,15 @@ class Model extends require("../base") {
     });
 
     // auto bind methods
-    this.autobind(Model);
+    this.autobind(Builder);
     // auto invoke methods
-    this.autoinvoker(Model);
+    this.autoinvoker(Builder);
     // add other classes method if methods do not already exist. Argument order matters!
-    this.methodizer(Executer, Promises, Builder, Query);
+    // this.methodizer(Query);
     //Set the maximum number of listeners to infinity
     this.setMaxListeners(Infinity);
   }
+
   path(path = '', base = process.cwd()) {
     return require('path').join(base, path)
   }
@@ -65,92 +51,42 @@ class Model extends require("../base") {
   cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
 
 
+  buildAll(results, data = []) {
+    for (let datum of results) {
+      let single = {}
+      for (let el of datum.split(',')) {
+        let index = el.indexOf(':');
+        let key = el.substring(0, index).trim();
+        let value = el.substring(index + 1).trim();
 
-  // All 
-
-  // buildAll(results, data = []) {
-  //   for (let datum of results) {
-  //     let single = {}
-  //     for (let el of datum.split(',')) {
-  //       let index = el.indexOf(':');
-  //       let key = el.substring(0, index).trim();
-  //       let value = el.substring(index + 1).trim();
-
-  //       single[key] = this.cleaner(value);
-  //       if (Number.isInteger(parseInt(this.cleaner(el.substring(index + 1).trim())))) {
-  //         single[key] = Number(parseInt(this.cleaner(el.substring(index + 1).trim())));
-  //       } else {
-  //         single[key] = this.cleaner(el.substring(index + 1).trim()).toString()
-  //       }
-  //       data.push(single)
-  //     }
-  //   }
-
-  //   return data;
-  // }
-
-  // async getAllQuery(collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/all.js')){
-
-  //   if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
-
-  //   const writable = createWriteStream(path, 'utf8');
-  //   writable.write(`const db = connect("${connection}/${db}");\n`)
-  //   writable.write(`printjson(db.${collection}.find({}).pretty());\n`)
-  //   writable.end();
-  // }
-
-  // async execAll(collection = this.collection, db = this.db, connection = this.connction, path = this.path('/databases/all.js')){
-
-  //   // if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
-
-  //   await this.getAllQuery(collection, db, connection, path)
-
-  //   const { stdout, stderr } = await exec(`mongosh --file  ${path}`);
-
-  //   if(stderr) throw new TypeError('Query execution failed');
-
-  //   const regex = /^\s*{\s*[\n\r]+(?:\s*[^\n\r]+[\n\r]+)+\s*}\s*$/gm;
-
-  //   const str = stdout.match(regex)[0];
-  //   const matches = str.match(/{(.*?)}/gs);
-
-  //   return matches ? matches.map(match => match.slice(1, -1)) : null;
-
-  // }
-
-  // async promiseAll(results = [], path = this.path('/databases/all.js')) {
-  //   return await new Promise((resolve, reject) => {
-  //     unlink(path, err => {
-  //       if (err) {
-  //         this.emit('getAll-error', err);
-  //         reject({ error: 'Error getting data', })
-  //       }
-  //       this.emit('getAll-success', results);
-  //       resolve(this.buildAll(results))
-  //     });
-  //   })
-
-  // }
-
-  async getAll(collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/all.js')) {
-
-    const results  = await this.execAll(collection, db, connection,path);
-
-
-    const data = await this.promiseAll(results, path);
-
+        single[key] = this.cleaner(value);
+        if (Number.isInteger(parseInt(this.cleaner(el.substring(index + 1).trim())))) {
+          single[key] = Number(parseInt(this.cleaner(el.substring(index + 1).trim())));
+        } else {
+          single[key] = this.cleaner(el.substring(index + 1).trim()).toString()
+        }
+        data.push(single)
+      }
+    }
     return data;
-
   }
 
-  async findById(id = '', collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/findById.js')) {
+  buildFindById(results, data = {}) {
 
-    const results  = await this.execfindByIdQuery(id, collection, db, connection,path);
-   
-    const data = await this.promiseFindById(results, path);
-
-    return data;
-
+    for (let datum of results) {
+      for (let el of datum.split(',')) {
+        let index = el.indexOf(':');
+        let key = el.substring(0, index).trim();
+        let value = el.substring(index + 1).trim();
+        data[key] = this.cleaner(value);
+        if (Number.isInteger(parseInt(this.cleaner(el.substring(index + 1).trim())))) {
+          data[key] = Number(parseInt(this.cleaner(el.substring(index + 1).trim())));
+        } else {
+          data[key] = this.cleaner(el.substring(index + 1).trim()).toString()
+        }
+      }
+    }
+    return data
   }
 
   /**
@@ -272,6 +208,7 @@ class Model extends require("../base") {
       }
     }
   }
+
   config() {
     if (!this.db) this.db = process.env.DB_NAME
     if (!this.connection) this.connection = process.env.DB_CONNECTION
@@ -280,6 +217,7 @@ class Model extends require("../base") {
     if (!this.collection) this.collection = 'users';
     // if(!this.url) this.url = `${process.env.DB_CONNECTION}/${process.env.DB_NAME}`
   }
+
   /**
    * @name autoinvoked
    * @function
@@ -291,23 +229,13 @@ class Model extends require("../base") {
    * @return does not return anything
    *
    */
-
   autoinvoked() {
     return ['config'];
   }
 
 }
 
-module.exports = Model;
-
-
-
-(async () => {
-  const City  = new Model({collection: 'cities'})
-  // const cities = await City.getAll();
-  const city = await City.findById('635919e22bc9cdd44701ee88')
-  console.log(city)
-})()
+module.exports = Builder;
 
 
 

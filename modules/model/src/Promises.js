@@ -10,21 +10,25 @@
  *    phone: +1.385.204.5167
  *    Website: https://www.ericsonweah.dev
  * 
- * @module Query
+ * @module Promises
  * @kind class
  *
  * @extends Base
  * @requires Base
  *
- * @classdesc Query class
+ * @classdesc Promises class
  */
 
 
 const { createWriteStream, existsSync, unlink } = require('fs')
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
+
 require('../../dotenv').config();
-class Query extends require("../../base") {
+
+const Builder = require('./Builder')
+
+class Promises extends require("../../base") {
 
     constructor(...arrayOfObjects) {
 
@@ -37,41 +41,49 @@ class Query extends require("../../base") {
         });
 
         // auto bind methods
-        this.autobind(Query);
+        this.autobind(Promises);
         // auto invoke methods
-        this.autoinvoker(Query);
+        this.autoinvoker(Promises);
         // add other classes method if methods do not already exist. Argument order matters!
-        // this.methodizer(Query);
+        this.methodizer(Builder);
         //Set the maximum number of listeners to infinity
         this.setMaxListeners(Infinity);
     }
-
     path(path = '', base = process.cwd()) {
         return require('path').join(base, path)
     }
-
-
-    async getAllQuery(collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/all.js')){
-
-        if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
     
-        const writable = createWriteStream(path, 'utf8');
-        writable.write(`const db = connect("${connection}/${db}");\n`)
-        writable.write(`printjson(db.${collection}.find({}).pretty());\n`)
-        writable.end();
+    cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
+
+    async promiseAll(results = [], path = this.path('/databases/all.js')) {
+        return console.log(results)
+        return await new Promise((resolve, reject) => {
+          unlink(path, err => {
+            if (err) {
+              this.emit('getAll-error', err);
+              reject({ error: 'Error getting data', })
+            }
+            this.emit('getAll-success', results);
+            resolve(this.buildAll(results))
+          });
+        })
+    
       }
-    
 
-    findByIdQuery(id = '', collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/findById.js')) {
+    async promiseFindById(results = [], path = this.path('/databases/findById.js')) {
 
-        if(!id || id.trim().length == 0) throw new TypeError('id required');
-        if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
-        const writable = createWriteStream(path, 'utf8');
-        writable.write(`const db = connect("${connection}/${db}");\n`)
-        writable.write(`printjson(db.${collection}.findOne({_id: ObjectId("${id}")}));\n`)
-        writable.end();
+        // return console.log(this.buildFindById(results));
+        return await new Promise((resolve, reject) => {
+            unlink(path, err => {
+                if (err) {
+                    this.emit('findById-error', err);
+                    reject({ error: 'Error getting data', })
+                }
+                this.emit('findById-success', err);
+                resolve(this.buildFindById(results))
+            });
+        })
     }
-
 
     /**
    * @name autobinder
@@ -201,6 +213,7 @@ class Query extends require("../../base") {
         if (!this.collection) this.collection = 'users';
         // if(!this.url) this.url = `${process.env.DB_CONNECTION}/${process.env.DB_NAME}`
     }
+
     /**
      * @name autoinvoked
      * @function
@@ -212,15 +225,13 @@ class Query extends require("../../base") {
      * @return does not return anything
      *
      */
-
     autoinvoked() {
         return ['config'];
     }
 
 }
 
-module.exports = Query;
-
+module.exports = Promises;
 
 
 

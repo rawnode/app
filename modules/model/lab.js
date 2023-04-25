@@ -33,5 +33,10 @@ const  findByIdQuery  = async ( filePath = './databases/findById.js') => {
     return findByIdBuild(cleaner(strs).split(','))
 }
 
+
 findByIdQuery().then(console.log)
+
+
+
+
 
