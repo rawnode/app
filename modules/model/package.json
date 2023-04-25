@@ -1,0 +1,31 @@
+{
+  "name": "model",
+  "version": "0.0.0",
+  "description": "model",
+  "main": "index.js",
+  "bin": {
+    "model": "bin/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/rawnodejs/model.git"
+  },
+  "keywords": [
+    "raw-nodejs-model",
+    "mongodb-model"
+  ],
+  "author": "Ericson S. Weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rawnodejs/model/issues"
+  },
+  "homepage": "https://github.com/rawnodejs/model#readme"
+}
