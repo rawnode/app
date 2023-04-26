@@ -27,5 +27,11 @@
   "bugs": {
     "url": "https://github.com/rawnodejs/model/issues"
   },
-  "homepage": "https://github.com/rawnodejs/model#readme"
+  "homepage": "https://github.com/rawnodejs/model#readme",
+  "dependencies": {
+    "base": "./modules/base",
+    "dotenv": "./modules/dotenv",
+    "mongosh": "./modules/mongosh",
+    "query": "./modules/query"
+  }
 }

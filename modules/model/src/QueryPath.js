@@ -24,8 +24,8 @@ const { createWriteStream, existsSync, unlink } = require('fs')
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 
-require('../../dotenv').config();
-class QueryPath extends require("../../base") {
+require('dotenv').config();
+class QueryPath extends require("base") {
 
     constructor(...arrayOfObjects) {
 

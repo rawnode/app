@@ -23,8 +23,8 @@
 const { createWriteStream, existsSync, unlink } = require('fs')
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
-require('../../dotenv').config();
-class Query extends require("../../base") {
+require('dotenv').config();
+class Query extends require("base") {
 
     constructor(...arrayOfObjects) {
 
@@ -68,6 +68,7 @@ class Query extends require("../../base") {
         writable.write(`Readable.from(JSON.stringify(all)).pipe(newWritable);\n`)
         writable.end();
       }
+    
 
     /**
    * @name autobinder

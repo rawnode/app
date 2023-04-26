@@ -21,12 +21,18 @@
 
 
 
+
+
 require('../dotenv').config();
 
-const Executer = require('./src/Executer');
-const QueryPath = require('./src/QueryPath');
-const Query = require('./src/Query');
-class Model extends require("../base") {
+const { Readable } = require('stream')
+
+const { createWriteStream, createReadStream, unlink, existsSync } = require('fs')
+const util = require('node:util');
+const exec = util.promisify(require('node:child_process').exec)
+
+const mongosh = require('mongosh');
+class Model extends require("base") {
 
   constructor(...arrayOfObjects) {
 
@@ -43,26 +49,49 @@ class Model extends require("../base") {
     // auto invoke methods
     this.autoinvoker(Model);
     // add other classes method if methods do not already exist. Argument order matters!
-    this.methodizer(QueryPath, Query,Executer);
+    // this.methodizer(QueryPath, Query,Executer);
     //Set the maximum number of listeners to infinity
     this.setMaxListeners(Infinity);
   }
   path(path = '', base = process.cwd()) {
     return require('path').join(base, path)
   }
+
+
+
+filePath(path = '', base = process.cwd()) {return require('path').join(base, path)}
+
+executableFilePath(path = this.filePath('/databases/' + path), extension = 'js' ){ return existsSync(`${this.filePath('/databases/' + path)}.${extension}`) ? `${this.filePath('/databases/' + path)}-${Date.now()}.${extension}` : `${this.filePath('/databases/' + path)}.${extension}`};
+
+promisedResult(path, jsonPath) { 
+  return new Promise((resolve, reject) => {
+
+    const readable = createReadStream(jsonPath, 'utf-8');
+    readable.on('data', (data) => resolve(JSON.parse(data)));
+    // Listen for the 'end' event to know when the stream has ended
+    readable.on('end', () => {
+        unlink(jsonPath, err => err ? reject(err): '');
+        unlink(path, err => err ? reject(err): '');
+        // console.log('Finished reading data from stream.');
+    });
+    // Listen for the 'error' event to handle any errors that occur during reading
+    readable.on('error', (err) => reject(err));
+})
+}
+
+
+async find(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')){
+    
+  Readable.from(mongosh.find(collection)).pipe(createWriteStream(path, 'utf-8'))
+
+  const run = async (mongoshFile = path) => await exec(`mongosh --file ${mongoshFile}`);
+  
+  await run(path)
+
+  return this.promisedResult(path, jsonPath)
+
+}
  
-  async find(collection  = this.collection, db = this.db, connection = this.connection) {
-
-    const {path, dataExecPath} = this.setFindQueryPaths(collection)
-    this.findQuery(collection, db, connection, path, dataExecPath)
-
-    return await this.execFind(collection, path, dataExecPath);
-  }
-
-
-
-
-
   /**
  * @name autobinder
  * @function
@@ -210,9 +239,9 @@ class Model extends require("../base") {
 
 module.exports = Model;
 
-const User = new Model({collection: 'cities'}) 
+const City = new Model({collection: 'cities'}) 
 
-User.find().then(console.log);
+City.find().then(console.log)
 
 
 

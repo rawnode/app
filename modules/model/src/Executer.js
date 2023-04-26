@@ -21,7 +21,7 @@
 
 
 
-require('../../dotenv').config();
+require('dotenv').config();
 
 const { createWriteStream, existsSync, unlink, createReadStream } = require('fs')
 
@@ -30,7 +30,7 @@ const exec = util.promisify(require('node:child_process').exec);
 
 const Query = require('./Query')
 
-class Executer extends require("../../base") {
+class Executer extends require("base") {
 
   constructor(...arrayOfObjects) {
 
@@ -62,7 +62,7 @@ class Executer extends require("../../base") {
 
   cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
 
-  
+
   async execFind(collection = this.collection, path = this.path('/databases/find.js'), dataExecPath = this.path('/databases/'+ `latest-${collection.slice(0, -1)}.json`)){
     const query = await this.run(path)
      if(query.stdout){
