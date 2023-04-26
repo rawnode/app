@@ -10,21 +10,25 @@
  *    phone: +1.385.204.5167
  *    Website: https://www.ericsonweah.dev
  * 
- * @module Query
+ * @module Promises
  * @kind class
  *
  * @extends Base
  * @requires Base
  *
- * @classdesc Query class
+ * @classdesc Promises class
  */
 
 
 const { createWriteStream, existsSync, unlink } = require('fs')
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
+
 require('../../dotenv').config();
-class Query extends require("../../base") {
+
+const Builder = require('./Builder')
+
+class Promises extends require("../../base") {
 
     constructor(...arrayOfObjects) {
 
@@ -37,37 +41,49 @@ class Query extends require("../../base") {
         });
 
         // auto bind methods
-        this.autobind(Query);
+        this.autobind(Promises);
         // auto invoke methods
-        this.autoinvoker(Query);
+        this.autoinvoker(Promises);
         // add other classes method if methods do not already exist. Argument order matters!
-        // this.methodizer(Query);
+        this.methodizer(Builder);
         //Set the maximum number of listeners to infinity
         this.setMaxListeners(Infinity);
     }
-
     path(path = '', base = process.cwd()) {
         return require('path').join(base, path)
     }
+    
+    cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(' '); }
 
-    async findQuery(collection  = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/find.js'), dataExecPath = this.path('/databases/'+ `latest-${collection.slice(0, -1)}.json`)){
-        const writable = createWriteStream(path, 'utf-8')
-        writable.write(`const {createWriteStream, createReadStream, existsSync, unlink, readFile} = require('fs');\n`)
-        writable.write(`const {Readable} = require('stream');\n\n`)
-        writable.write(`const db = connect("${connection}/${db}");\n`)
-        writable.write(`const ${collection} = db.${collection}.find({});\n\n`)
+    async promiseAll(results = [], path = this.path('/databases/all.js')) {
+       
+        return await new Promise((resolve, reject) => {
+          unlink(path, err => {
+            if (err) {
+              this.emit('getAll-error', err);
+              reject({ error: 'Error getting data', })
+            }
+            this.emit('getAll-success', results);
+            resolve(this.buildAll(results))
+          });
+        })
     
-        writable.write(`const all  = [];\n`)
-        writable.write(`${collection}.forEach(${collection.slice(0, -1)} => all.push(${collection.slice(0, -1)}));\n`)
-        writable.write(`let dataPath  = '${dataExecPath}';\n\n`)
-        writable.write(`if(existsSync(dataPath)){;\n`)
-        writable.write(`    dataPath = "${dataExecPath}";\n`)
-        writable.write(`}\n\n`)
-    
-        writable.write(`const newWritable = createWriteStream(dataPath, 'utf-8');\n`)
-        writable.write(`Readable.from(JSON.stringify(all)).pipe(newWritable);\n`)
-        writable.end();
       }
+
+    async promiseFindById(results = [], path = this.path('/databases/findById.js')) {
+
+        // return console.log(this.buildFindById(results));
+        return await new Promise((resolve, reject) => {
+            unlink(path, err => {
+                if (err) {
+                    this.emit('findById-error', err);
+                    reject({ error: 'Error getting data', })
+                }
+                this.emit('findById-success', err);
+                resolve(this.buildFindById(results))
+            });
+        })
+    }
 
     /**
    * @name autobinder
@@ -197,6 +213,7 @@ class Query extends require("../../base") {
         if (!this.collection) this.collection = 'users';
         // if(!this.url) this.url = `${process.env.DB_CONNECTION}/${process.env.DB_NAME}`
     }
+
     /**
      * @name autoinvoked
      * @function
@@ -208,15 +225,13 @@ class Query extends require("../../base") {
      * @return does not return anything
      *
      */
-
     autoinvoked() {
         return ['config'];
     }
 
 }
 
-module.exports = Query;
-
+module.exports = Promises;
 
 
 

@@ -21,6 +21,7 @@
 const  https = require('https');
 const  http = require('http');
 const {parse} = require('url')
+const {createWriteStream, createReadStream} = require('fs')
 
 class Base extends require("stream").Transform {
 constructor(...arrayOfObjects) {
@@ -44,6 +45,13 @@ constructor(...arrayOfObjects) {
 
   path (path = '', base = process.cwd()) {
     return require('path').join(base, path)
+  }
+
+  writable(path = this.path('.', options = { objectMode: true, encoding: "utf-8", autoDestroy: true })){
+    return createWriteStream(path, options)
+  }
+  readable(path = this.path('.', options = { objectMode: true, encoding: "utf-8", autoDestroy: true })){
+    return createReadStream(path, options)
   }
 
   /**

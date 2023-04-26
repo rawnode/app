@@ -10,27 +10,34 @@
  *    phone: +1.385.204.5167
  *    Website: https://www.ericsonweah.dev
  * 
- * @module Executer
+ * @module Model
  * @kind class
  *
  * @extends Base
  * @requires Base
  *
- * @classdesc Executer class
+ * @classdesc Model class
  */
 
+// const Query = require('./src/Query')
 
 
-require('../../dotenv').config();
 
-const { createWriteStream, existsSync, unlink, createReadStream } = require('fs')
 
+const { createWriteStream, existsSync, unlink } = require('fs')
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 
-const Query = require('./Query')
+require('../dotenv').config();
 
-class Executer extends require("../../base") {
+
+
+const Promises = require('./src/Promises')
+const Executer = require('./src/Executer')
+const Builder = require('./src/Builder')
+const Query = require('./src/Query')
+
+class Model extends require("../base") {
 
   constructor(...arrayOfObjects) {
 
@@ -43,44 +50,60 @@ class Executer extends require("../../base") {
     });
 
     // auto bind methods
-    this.autobind(Executer);
+    this.autobind(Model);
     // auto invoke methods
-    this.autoinvoker(Executer);
+    this.autoinvoker(Model);
     // add other classes method if methods do not already exist. Argument order matters!
-    this.methodizer(Query);
+    this.methodizer(Executer, Promises, Builder, Query);
     //Set the maximum number of listeners to infinity
     this.setMaxListeners(Infinity);
   }
-
-
   path(path = '', base = process.cwd()) {
     return require('path').join(base, path)
-  }
-  async run (path = this.path('/databases/find.json')){
-    return await exec(`mongosh --file ${path}`);
   }
 
   cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
 
-  
-  async execFind(collection = this.collection, path = this.path('/databases/find.js'), dataExecPath = this.path('/databases/'+ `latest-${collection.slice(0, -1)}.json`)){
-    const query = await this.run(path)
-     if(query.stdout){
-        const data =  await this.run(dataExecPath);
-        if(data.stdout){
-          const readable  = createReadStream(dataExecPath, 'utf-8');
-          return await new Promise((resolve, reject) => {
-            readable.on('data', (chunk) => resolve(JSON.parse(chunk)));
-            readable.on('end', () => {
-              unlink(dataExecPath, err => err ? reject(err): '');
-              unlink(path, err => err ? reject(err): '');
-            });
-            readable.on('error', (err) => reject(err));
-          })
-        }
-     }
+
+  async getAll(collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/all.js')) {
+
+    const results  = await this.execAll(collection, db, connection,path);
+
+    const data = await this.promiseAll(results, path);
+
+    return data;
+
   }
- 
+  async findById(id = '', collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/findById.js')) {
+
+    const results  = await this.execFindByIdQuery(id, collection, db, connection,path);
+   
+    const data = await this.promiseFindById(results, path);
+
+    return data;
+
+  }
+
+  async insertOne(datum = {}, collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/insertOne.js')){
+    const results  = await this.execInsertOne(datum, collection, db, connection,path);
+    const data = await this.promiseInsertOne(results, path);
+
+    return data;
+  }
+  async insertMany(){}
+
+  async updateOne(){}
+  async updateMany(){}
+
+  async deleteOne(){}
+  async deleteMany(){}
+
+  async create(){}
+  async createMany(){}
+
+  async find(){}
+
+
   /**
  * @name autobinder
  * @function
@@ -200,7 +223,6 @@ class Executer extends require("../../base") {
       }
     }
   }
-
   config() {
     if (!this.db) this.db = process.env.DB_NAME
     if (!this.connection) this.connection = process.env.DB_CONNECTION
@@ -209,7 +231,6 @@ class Executer extends require("../../base") {
     if (!this.collection) this.collection = 'users';
     // if(!this.url) this.url = `${process.env.DB_CONNECTION}/${process.env.DB_NAME}`
   }
-
   /**
    * @name autoinvoked
    * @function
@@ -221,14 +242,24 @@ class Executer extends require("../../base") {
    * @return does not return anything
    *
    */
+
   autoinvoked() {
     return ['config'];
   }
 
 }
 
-module.exports = Executer;
+module.exports = Model;
 
+
+
+(async () => {
+  const City  = new Model({collection: 'cities'})
+  const cities = await City.getAll();
+  // const city = await City.findById('635919e22bc9cdd44701ee88')
+  console.log(cities)
+  // console.log(city)
+})()
 
 
 

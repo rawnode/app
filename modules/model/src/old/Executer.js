@@ -23,8 +23,7 @@
 
 require('../../dotenv').config();
 
-const { createWriteStream, existsSync, unlink, createReadStream } = require('fs')
-
+const { createWriteStream, existsSync, unlink } = require('fs')
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 
@@ -56,31 +55,60 @@ class Executer extends require("../../base") {
   path(path = '', base = process.cwd()) {
     return require('path').join(base, path)
   }
-  async run (path = this.path('/databases/find.json')){
-    return await exec(`mongosh --file ${path}`);
-  }
 
   cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
 
+  async execAll(collection = this.collection, db = this.db, connection = this.connction, path = this.path('/databases/all.js')){
+
+    // if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
+
+    await this.getAllQuery(collection, db, connection, path)
+
+    const { stdout, stderr } = await exec(`mongosh --file  ${path}`);
+
+    if(stderr) throw new TypeError('Query execution failed');
+
+    const regex = /^\s*{\s*[\n\r]+(?:\s*[^\n\r]+[\n\r]+)+\s*}\s*$/gm;
+
+    const str = stdout.match(regex)[0];
+    const matches = str.match(/{(.*?)}/gs);
+
   
-  async execFind(collection = this.collection, path = this.path('/databases/find.js'), dataExecPath = this.path('/databases/'+ `latest-${collection.slice(0, -1)}.json`)){
-    const query = await this.run(path)
-     if(query.stdout){
-        const data =  await this.run(dataExecPath);
-        if(data.stdout){
-          const readable  = createReadStream(dataExecPath, 'utf-8');
-          return await new Promise((resolve, reject) => {
-            readable.on('data', (chunk) => resolve(JSON.parse(chunk)));
-            readable.on('end', () => {
-              unlink(dataExecPath, err => err ? reject(err): '');
-              unlink(path, err => err ? reject(err): '');
-            });
-            readable.on('error', (err) => reject(err));
-          })
-        }
-     }
+
+    const results =  matches ? matches.map(match => match.slice(1, -1)) : null;
+
+    //return console.log(results)
+    return results;
+
   }
+
+
+  async execFindByIdQuery ( id = '',collection = this.collection, db = this.db, connection = this.connection, filePath = './databases/findById.js') {
+
+    await this.findByIdQuery(id, collection, db, connection, filePath)
+
+    const { stdout, stderr } = await exec(`mongosh --file  ${filePath}`);
+
+    if(stderr) throw new TypeError('Query execution failed');
+    const regex = /^\s*{\s*[\n\r]+(?:\s*[^\n\r]+[\n\r]+)+\s*}\s*$/gm;
+
+    // return console.log(stdout)
+    let str = stdout.match(regex)[0];
+
+    // return console.log(str)
  
+    // let strs =  Array.from(this.cleaner(str));
+
+    let strs =  Array.from(str);
+    strs.pop();
+    strs.shift();
+
+    // return console.log(strs.join(''))
+ 
+    return strs.join('').trim().split(',');//this.cleaner(strs).split(',');
+}
+
+
   /**
  * @name autobinder
  * @function

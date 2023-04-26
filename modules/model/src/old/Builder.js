@@ -49,10 +49,24 @@ class Builder extends require("../../base") {
   }
 
   cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
+  valueCleaner(string) { 
+    let elArray = Array.from(string.trim())
+    elArray.pop();
+    elArray.shift();
+    return elArray.join('')
+   }
 
-
+//   ObjectId() {
+//     const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');
+//     const random = Math.floor(Math.random() * 16777216).toString(16).padStart(6, '0');
+//     const counter = (this.ObjectId.counter++ % 16777216).toString(16).padStart(6, '0');
+//     return timestamp + random + counter;
+// }
+ObjectId(string = 'string'){}
   buildAll(results, data = []) {
+   
     for (let datum of results) {
+
       let single = {}
       for (let el of datum.split(',')) {
         let index = el.indexOf(':');
@@ -63,16 +77,23 @@ class Builder extends require("../../base") {
         if (Number.isInteger(parseInt(this.cleaner(el.substring(index + 1).trim())))) {
           single[key] = Number(parseInt(this.cleaner(el.substring(index + 1).trim())));
         } else {
-          single[key] = this.cleaner(el.substring(index + 1).trim()).toString()
+ 
+          if(el.substring(index + 1).trim().startsWith('ObjectId(') || el.substring(index + 1).trim().startsWith('ISODate(')){
+            single[key] = el.substring(index + 1).trim();
+          }else{
+            single[key] = this.valueCleaner(el.substring(index + 1).trim());
+          }
+          // return console.log()
+          // single[key] = this.valueCleaner(el.substring(index + 1).trim());// this.valueCleaner(el.substring(index + 1).trim()).toString()
         }
-        data.push(single)
       }
+      data.push(single)
     }
+
     return data;
   }
 
   buildFindById(results, data = {}) {
-
     for (let datum of results) {
       for (let el of datum.split(',')) {
         let index = el.indexOf(':');
@@ -82,9 +103,20 @@ class Builder extends require("../../base") {
         if (Number.isInteger(parseInt(this.cleaner(el.substring(index + 1).trim())))) {
           data[key] = Number(parseInt(this.cleaner(el.substring(index + 1).trim())));
         } else {
-          data[key] = this.cleaner(el.substring(index + 1).trim()).toString()
+          
+          if(el.substring(index + 1).trim().startsWith('ObjectId(') || el.substring(index + 1).trim().startsWith('ISODate(')){
+             if(el.substring(index + 1).trim().endsWith('\n}')){
+              data[key] = el.substring(index + 1).trim().split('\n}')[0];
+             }else{
+              data[key] = el.substring(index + 1).trim();
+             }
+          }else{
+            data[key] = this.valueCleaner(el.substring(index + 1).trim());
+          }
         }
       }
+
+     
     }
     return data
   }

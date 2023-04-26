@@ -50,24 +50,39 @@ class Query extends require("../../base") {
         return require('path').join(base, path)
     }
 
-    async findQuery(collection  = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/find.js'), dataExecPath = this.path('/databases/'+ `latest-${collection.slice(0, -1)}.json`)){
-        const writable = createWriteStream(path, 'utf-8')
-        writable.write(`const {createWriteStream, createReadStream, existsSync, unlink, readFile} = require('fs');\n`)
-        writable.write(`const {Readable} = require('stream');\n\n`)
+
+    async getAllQuery(collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/all.js')){
+
+        if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
+    
+        const writable = createWriteStream(path, 'utf8');
         writable.write(`const db = connect("${connection}/${db}");\n`)
-        writable.write(`const ${collection} = db.${collection}.find({});\n\n`)
-    
-        writable.write(`const all  = [];\n`)
-        writable.write(`${collection}.forEach(${collection.slice(0, -1)} => all.push(${collection.slice(0, -1)}));\n`)
-        writable.write(`let dataPath  = '${dataExecPath}';\n\n`)
-        writable.write(`if(existsSync(dataPath)){;\n`)
-        writable.write(`    dataPath = "${dataExecPath}";\n`)
-        writable.write(`}\n\n`)
-    
-        writable.write(`const newWritable = createWriteStream(dataPath, 'utf-8');\n`)
-        writable.write(`Readable.from(JSON.stringify(all)).pipe(newWritable);\n`)
+        writable.write(`printjson(db.${collection}.find({}).pretty());\n`)
         writable.end();
       }
+    
+
+    findByIdQuery(id = '', collection = this.collection, db = this.db, connection = this.connection, path = this.path('/databases/findById.js')) {
+        if(!id || id.trim().length == 0) throw new TypeError('id required');
+        if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
+        const writable = createWriteStream(path, 'utf8');
+        writable.write(`const db = connect("${connection}/${db}");\n`)
+        writable.write(`printjson(db.${collection}.findOne({_id: ObjectId("${id}")}));\n`)
+        writable.end();
+    }
+    // Create 
+    insertOne(datum = {}){}
+    insertManyQuery(data = []) {}
+    
+
+
+
+   
+
+
+
+  
+
 
     /**
    * @name autobinder

@@ -10,13 +10,13 @@
  *    phone: +1.385.204.5167
  *    Website: https://www.ericsonweah.dev
  * 
- * @module Promises
+ * @module QueryPath
  * @kind class
  *
  * @extends Base
  * @requires Base
  *
- * @classdesc Promises class
+ * @classdesc QueryPath class
  */
 
 
@@ -25,10 +25,7 @@ const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 
 require('../../dotenv').config();
-
-const Builder = require('./Builder')
-
-class Promises extends require("../../base") {
+class QueryPath extends require("../../base") {
 
     constructor(...arrayOfObjects) {
 
@@ -41,49 +38,26 @@ class Promises extends require("../../base") {
         });
 
         // auto bind methods
-        this.autobind(Promises);
+        this.autobind(QueryPath);
         // auto invoke methods
-        this.autoinvoker(Promises);
+        this.autoinvoker(QueryPath);
         // add other classes method if methods do not already exist. Argument order matters!
-        this.methodizer(Builder);
+        // this.methodizer(QueryPath);
         //Set the maximum number of listeners to infinity
         this.setMaxListeners(Infinity);
     }
+
     path(path = '', base = process.cwd()) {
         return require('path').join(base, path)
     }
-    
-    cleaner(string) { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
 
-    async promiseAll(results = [], path = this.path('/databases/all.js')) {
-       
-        return await new Promise((resolve, reject) => {
-          unlink(path, err => {
-            if (err) {
-              this.emit('getAll-error', err);
-              reject({ error: 'Error getting data', })
-            }
-            this.emit('getAll-success', results);
-            resolve(this.buildAll(results))
-          });
-        })
-    
-      }
 
-    async promiseFindById(results = [], path = this.path('/databases/findById.js')) {
+    async setFindQueryPaths(collection = this.connection, path = this.path('/databases/find.js'), dataExecPath = this.path('/databases/'+ `latest-${collection.slice(0, -1)}.json`)){
 
-        // return console.log(this.buildFindById(results));
-        return await new Promise((resolve, reject) => {
-            unlink(path, err => {
-                if (err) {
-                    this.emit('findById-error', err);
-                    reject({ error: 'Error getting data', })
-                }
-                this.emit('findById-success', err);
-                resolve(this.buildFindById(results))
-            });
-        })
-    }
+        if (existsSync(path)) path = `${path.split('.js')[0]}-${Date.now()}.js`;
+        if(existsSync(dataExecPath)) dataExecPath = this.path('/databases/'+ `latest-${collection.slice(0, -1)}-${Date.now()}.json`);
+        return {path, dataExecPath}
+       }
 
     /**
    * @name autobinder
@@ -213,7 +187,6 @@ class Promises extends require("../../base") {
         if (!this.collection) this.collection = 'users';
         // if(!this.url) this.url = `${process.env.DB_CONNECTION}/${process.env.DB_NAME}`
     }
-
     /**
      * @name autoinvoked
      * @function
@@ -225,13 +198,15 @@ class Promises extends require("../../base") {
      * @return does not return anything
      *
      */
+
     autoinvoked() {
         return ['config'];
     }
 
 }
 
-module.exports = Promises;
+module.exports = QueryPath;
+
 
 
 
