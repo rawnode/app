@@ -59,39 +59,65 @@ class Model extends require("base") {
 
 
 
-filePath(path = '', base = process.cwd()) {return require('path').join(base, path)}
+  filePath(path = '', base = process.cwd()) { return require('path').join(base, path) }
 
-executableFilePath(path = this.filePath('/databases/' + path), extension = 'js' ){ return existsSync(`${this.filePath('/databases/' + path)}.${extension}`) ? `${this.filePath('/databases/' + path)}-${Date.now()}.${extension}` : `${this.filePath('/databases/' + path)}.${extension}`};
+  executableFilePath(path = this.filePath('/databases/' + path), extension = 'js') { return existsSync(`${this.filePath('/databases/' + path)}.${extension}`) ? `${this.filePath('/databases/' + path)}-${Date.now()}.${extension}` : `${this.filePath('/databases/' + path)}.${extension}` };
 
-promisedResult(path, jsonPath) { 
-  return new Promise((resolve, reject) => {
+  promisedResult(path, jsonPath) {
 
-    const readable = createReadStream(jsonPath, 'utf-8');
-    readable.on('data', (data) => resolve(JSON.parse(data)));
-    // Listen for the 'end' event to know when the stream has ended
-    readable.on('end', () => {
-        unlink(jsonPath, err => err ? reject(err): '');
-        unlink(path, err => err ? reject(err): '');
+    return new Promise((resolve, reject) => {
+
+      const readable = createReadStream(jsonPath, 'utf-8');
+      readable.on('data', (data) => resolve(JSON.parse(data)));
+      // Listen for the 'end' event to know when the stream has ended
+      readable.on('end', () => {
+        unlink(jsonPath, err => err ? reject(err) : '');
+        unlink(path, err => err ? reject(err) : '');
         // console.log('Finished reading data from stream.');
-    });
-    // Listen for the 'error' event to handle any errors that occur during reading
-    readable.on('error', (err) => reject(err));
-})
-}
+      });
+      // Listen for the 'error' event to handle any errors that occur during reading
+      readable.on('error', (err) => reject(err));
+      
+    })
+  }
 
+  async queryExecutor(fn = mongosh.find, collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')){
 
-async find(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')){
-    
-  Readable.from(mongosh.find(collection)).pipe(createWriteStream(path, 'utf-8'))
+    Readable.from(fn(collection)).pipe(createWriteStream(path, 'utf-8'));
+    const run = async (mongoshFile = path) => await exec(`mongosh --file ${mongoshFile}`);
 
-  const run = async (mongoshFile = path) => await exec(`mongosh --file ${mongoshFile}`);
-  
-  await run(path)
+    await run(path);
 
-  return this.promisedResult(path, jsonPath)
+    return this.promisedResult(path, jsonPath);
+  }
 
-}
- 
+  async queryByIdExecutor(id = '635919e22bc9cdd44701eedb', fn = mongosh.find, collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')){
+
+    Readable.from(fn(id, collection)).pipe(createWriteStream(path, 'utf-8'));
+    const run = async (mongoshFile = path) => await exec(`mongosh --file ${mongoshFile}`);
+
+    await run(path);
+
+    return this.promisedResult(path, jsonPath);
+  }
+
+  async find(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
+    return this.queryExecutor(mongosh.find, collection = this.collection, path, jsonPath);
+  }
+  async findOne(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
+    return this.queryExecutor(mongosh.findOne, collection = this.collection, path, jsonPath);
+   
+  }
+  async findOneLatest(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
+    return this.queryExecutor(mongosh.findOneLatest, collection = this.collection, path, jsonPath);
+  }
+  async findLatestOne(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
+    return this.queryExecutor(mongosh.findOneLatest, collection = this.collection, path, jsonPath);
+  }
+  async findById(id = 'queryByIdExecutor', collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
+    return this.queryByIdExecutor(id, mongosh.findById, collection = this.collection, path, jsonPath);
+  }
+
   /**
  * @name autobinder
  * @function
@@ -239,9 +265,9 @@ async find(collection = this.collection, path = this.executableFilePath(collecti
 
 module.exports = Model;
 
-const City = new Model({collection: 'cities'}) 
+const City = new Model({ collection: 'cities' })
 
-City.find().then(console.log)
+City.findById('635919e22bc9cdd44701eedb').then(console.log)
 
 
 

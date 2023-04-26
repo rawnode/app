@@ -5,7 +5,7 @@ const { createWriteStream, createReadStream, unlink, existsSync } = require('fs'
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec)
 
-const {findOneLatest} = require('mongosh');
+const mongosh = require('mongosh');
 
 const filePath = (path = '', base = process.cwd()) => require('path').join(base, path)
 
@@ -16,9 +16,8 @@ const promises = (path, jsonPath) => new Promise((resolve, reject) => {
 
     const readable = createReadStream(jsonPath, 'utf-8');
 
-    readable.on('data', (data) => {
-         resolve(JSON.parse(data))
-    });
+    readable.on('data', (data) => resolve(JSON.parse(data))
+    );
 
     // Listen for the 'end' event to know when the stream has ended
     readable.on('end', () => {
@@ -26,17 +25,14 @@ const promises = (path, jsonPath) => new Promise((resolve, reject) => {
         unlink(path, err => err ? reject(err): '');
         // console.log('Finished reading data from stream.');
     });
-
     // Listen for the 'error' event to handle any errors that occur during reading
-    readable.on('error', (err) => {
-        reject(err)
-    });
+    readable.on('error', (err) => reject(err));
 })
 
 
-const find = async (collection = 'users', path = executableFilePath(collection, 'js'), jsonPath = executableFilePath(collection, 'json')) => {
+const query = async (email, collection = 'users', path = executableFilePath(collection, 'js'), jsonPath = executableFilePath(collection, 'json')) => {
     
-    Readable.from(findOneLatest(collection)).pipe(createWriteStream(path, 'utf-8'))
+    Readable.from(mongosh.findByUsername(email, collection)).pipe(createWriteStream(path, 'utf-8'))
 
     const run = async (mongoshFile = path) => await exec(`mongosh --file ${mongoshFile}`);
     
@@ -48,6 +44,6 @@ const find = async (collection = 'users', path = executableFilePath(collection, 
 }
 // console.log(query)
 
-find('cities').then(console.log)
+query('winifred.kiehn','users').then(console.log)
 
 
