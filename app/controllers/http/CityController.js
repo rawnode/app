@@ -55,7 +55,7 @@ class CityController extends require("../../../modules/base") {
 
      async index(req, res, next, City = new Model({collection: 'cities'})) {
 
-        const city  = await City.findById('635919e22bc9cdd44701ee8a');
+        const city  = await City.findByCode('CX');
         // console.log('just checking', cities)
         // const allCities = await city.find({},{});
         res.status(200).send(city);
