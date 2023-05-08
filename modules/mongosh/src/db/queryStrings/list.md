@@ -1,0 +1,9 @@
+1. db.users.find()
+2. db.users.findOne()
+3. db.users.insertOne();
+4. db.users.insertMany();
+5. db.users.updateOne();
+6. db.users.updateMany();
+7. db.users.replaceOne();
+8. db.users.deleteOne();
+9. db.users.deleteMany();

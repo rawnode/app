@@ -30,6 +30,8 @@ const findQueryWriter = require('./src/db/queryWriters/findQueryWriter');
 const findOneQueryWriter = require('./src/db/queryWriters/findOneQueryWriter');
 const findByIdQueryWriter = require('./src/db/queryWriters/findByIdQueryWriter');
 const findByCodeQueryWriter = require('./src/db/queryWriters/findByCodeQueryWriter');
+const findByEmailQueryWriter = require('./src/db/queryWriters/findByEmailQueryWriter');
+const findByUsernameQueryWriter = require('./src/db/queryWriters/findByUsernameQueryWriter');
 
 class Mongosh extends require("./base") {
 
@@ -221,6 +223,75 @@ class Mongosh extends require("./base") {
             });
         })
     }
+
+
+
+    findByEmail(email = '635919e22bc9cdd44701ee8a', projection = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+
+        if(typeof email !== 'string') return `Code must be a string!`;
+
+        findByEmailQueryWriter(email, projection, collection, path)
+
+        return new Promise((resolve, reject) => {
+            exec(`mongosh --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
+                if (error) reject(error)
+                if (stdout.length > 0) {
+                    let result;
+                    const readable = fs.createReadStream(this.path(`/databases/${collection}.json`), { encoding: 'utf8', autoClose: true, autoDestroy: true })
+                    readable.on('data', chunk => result = JSON.parse(chunk))
+                    readable.on('end', () => {
+            
+                        if(fs.existsSync(this.path(`/databases/${collection}.json`))) {
+                            fs.unlink(this.path(`/databases/${collection}.json`), error => error ? reject(error) : resolve(result));
+                        }
+                        if(fs.existsSync(this.path('cities.js'))) {
+                            fs.unlink(this.path('cities.js'), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        if(fs.existsSync(this.path(`/databases/${this.collection}-find.js`))) {
+                            fs.unlink(this.path(`/databases/${collection}-find.js`), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        
+                    });
+                    readable.on('error', error => reject(error));
+                }
+            });
+        })
+    }
+
+
+
+    findByUsername(username = '635919e22bc9cdd44701ee8a', projection = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+
+        if(typeof username !== 'string') return `Code must be a string!`;
+
+        findByUsernameQueryWriter(username, projection, collection, path)
+
+        return new Promise((resolve, reject) => {
+            exec(`mongosh --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
+                if (error) reject(error)
+                if (stdout.length > 0) {
+                    let result;
+                    const readable = fs.createReadStream(this.path(`/databases/${collection}.json`), { encoding: 'utf8', autoClose: true, autoDestroy: true })
+                    readable.on('data', chunk => result = JSON.parse(chunk))
+                    readable.on('end', () => {
+            
+                        if(fs.existsSync(this.path(`/databases/${collection}.json`))) {
+                            fs.unlink(this.path(`/databases/${collection}.json`), error => error ? reject(error) : resolve(result));
+                        }
+                        if(fs.existsSync(this.path('cities.js'))) {
+                            fs.unlink(this.path('cities.js'), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        if(fs.existsSync(this.path(`/databases/${this.collection}-find.js`))) {
+                            fs.unlink(this.path(`/databases/${collection}-find.js`), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        
+                    });
+                    readable.on('error', error => reject(error));
+                }
+            });
+        })
+    }
+
 
 
 
