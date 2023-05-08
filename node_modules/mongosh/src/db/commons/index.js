@@ -76,6 +76,7 @@
     exports.path = (path = '', base = process.cwd()) => require('path').join(base, path)
 
     exports.queryBuilder = (query = {}) => typeof query === 'object' ? JSON.stringify(query) : JSON.stringify({});
+    exports.arrayQueryBuilder = (input = []) => Object.prototype.toString.call(input) === '[object Array]' ? JSON.stringify(input): JSON.stringify([input])
     
     exports.use = () => `
         require('dotenv').config();

@@ -32,6 +32,11 @@ const findByIdQueryWriter = require('./src/db/queryWriters/findByIdQueryWriter')
 const findByCodeQueryWriter = require('./src/db/queryWriters/findByCodeQueryWriter');
 const findByEmailQueryWriter = require('./src/db/queryWriters/findByEmailQueryWriter');
 const findByUsernameQueryWriter = require('./src/db/queryWriters/findByUsernameQueryWriter');
+const insertOneQueryWriter = require('./src/db/queryWriters/insertOneQueryWriter');
+const insertManyQueryWriter = require('./src/db/queryWriters/insertManyQueryWriter');
+
+const deleteOneQueryWriter = require('./src/db/queryWriters/deleteOneQueryWriter');
+const deleteManyQueryWriter = require('./src/db/queryWriters/deleteManyQueryWriter');
 
 class Mongosh extends require("./base") {
 
@@ -129,9 +134,9 @@ class Mongosh extends require("./base") {
         })
     }
 
-    findOne(query = {}, projection = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+    findOne(data = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
 
-        findOneQueryWriter(query, projection, collection, path)
+        findOneQueryWriter(data, projection, collection, path)
 
         return new Promise((resolve, reject) => {
             exec(`mongosh --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
@@ -291,6 +296,142 @@ class Mongosh extends require("./base") {
             });
         })
     }
+
+
+
+    insertOne(data  = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+
+        if(typeof data !=='object') return `data must be a object!`;
+
+        insertOneQueryWriter(data, collection, path)
+
+        return new Promise((resolve, reject) => {
+            exec(`mongosh --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
+                if (error) reject(error)
+                if (stdout.length > 0) {
+                    let result;
+                    const readable = fs.createReadStream(this.path(`/databases/${collection}.json`), { encoding: 'utf8', autoClose: true, autoDestroy: true })
+                    readable.on('data', chunk => result = JSON.parse(chunk))
+                    readable.on('end', () => {
+            
+                        if(fs.existsSync(this.path(`/databases/${collection}.json`))) {
+                            fs.unlink(this.path(`/databases/${collection}.json`), error => error ? reject(error) : resolve(result));
+                        }
+                        if(fs.existsSync(this.path('cities.js'))) {
+                            fs.unlink(this.path('cities.js'), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        if(fs.existsSync(this.path(`/databases/${this.collection}-find.js`))) {
+                            fs.unlink(this.path(`/databases/${collection}-find.js`), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        
+                    });
+                    readable.on('error', error => reject(error));
+                }
+            });
+        })
+    }
+
+
+    insertMany(data  = [], collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+
+        if(Object.prototype.toString.call(data) !== '[object Array]') return `data must be an array objects!`;
+
+        insertManyQueryWriter(data, collection, path)
+
+        return new Promise((resolve, reject) => {
+            exec(`mongosh --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
+                if (error) reject(error)
+                if (stdout.length > 0) {
+                    let result;
+                    const readable = fs.createReadStream(this.path(`/databases/${collection}.json`), { encoding: 'utf8', autoClose: true, autoDestroy: true })
+                    readable.on('data', chunk => result = JSON.parse(chunk))
+                    readable.on('end', () => {
+            
+                        if(fs.existsSync(this.path(`/databases/${collection}.json`))) {
+                            fs.unlink(this.path(`/databases/${collection}.json`), error => error ? reject(error) : resolve(result));
+                        }
+                        if(fs.existsSync(this.path('cities.js'))) {
+                            fs.unlink(this.path('cities.js'), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        if(fs.existsSync(this.path(`/databases/${this.collection}-find.js`))) {
+                            fs.unlink(this.path(`/databases/${collection}-find.js`), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        
+                    });
+                    readable.on('error', error => reject(error));
+                }
+            });
+        })
+    }
+
+
+    deleteOne(query = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+
+        if(Object.prototype.toString.call(query) !== '[object Object]') return `data must be an object!`;
+
+        deleteOneQueryWriter(query, collection, path)
+
+        return new Promise((resolve, reject) => {
+            exec(`mongosh --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
+                if (error) reject(error)
+                if (stdout.length > 0) {
+                    let result;
+                    const readable = fs.createReadStream(this.path(`/databases/${collection}.json`), { encoding: 'utf8', autoClose: true, autoDestroy: true })
+                    readable.on('data', chunk => result = JSON.parse(chunk))
+                    readable.on('end', () => {
+            
+                        if(fs.existsSync(this.path(`/databases/${collection}.json`))) {
+                            fs.unlink(this.path(`/databases/${collection}.json`), error => error ? reject(error) : resolve(result));
+                        }
+                        if(fs.existsSync(this.path('cities.js'))) {
+                            fs.unlink(this.path('cities.js'), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        if(fs.existsSync(this.path(`/databases/${this.collection}-find.js`))) {
+                            fs.unlink(this.path(`/databases/${collection}-find.js`), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        
+                    });
+                    readable.on('error', error => reject(error));
+                }
+            });
+        })
+    }
+
+
+
+    deleteMany(query = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+
+        if(Object.prototype.toString.call(query) !== '[object Object]') return `input query must be an object!`;
+
+        deleteManyQueryWriter(query, collection, path)
+
+        return new Promise((resolve, reject) => {
+            exec(`mongosh --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
+                if (error) reject(error)
+                if (stdout.length > 0) {
+                    let result;
+                    const readable = fs.createReadStream(this.path(`/databases/${collection}.json`), { encoding: 'utf8', autoClose: true, autoDestroy: true })
+                    readable.on('data', chunk => result = JSON.parse(chunk))
+                    readable.on('end', () => {
+            
+                        if(fs.existsSync(this.path(`/databases/${collection}.json`))) {
+                            fs.unlink(this.path(`/databases/${collection}.json`), error => error ? reject(error) : resolve(result));
+                        }
+                        if(fs.existsSync(this.path('cities.js'))) {
+                            fs.unlink(this.path('cities.js'), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        if(fs.existsSync(this.path(`/databases/${this.collection}-find.js`))) {
+                            fs.unlink(this.path(`/databases/${collection}-find.js`), error => error ? console.log(error.message) : console.log('Success'));
+                        }
+                        
+                    });
+                    readable.on('error', error => reject(error));
+                }
+            });
+        })
+    }
+
+
 
 
 

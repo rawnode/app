@@ -53,12 +53,12 @@ class CityController extends require("../../../modules/base") {
    *
    */
 
-     async index(req, res, next, User = new Model({collection: 'users'})) {
+     async index(req, res, next, City = new Model({collection: 'cities'})) {
 
-        const users  = await User.findByEmail('dangelo.grady@example.com');
+        const cities = await City.deleteMany({state:'Ivory Coast'});
         // console.log('just checking', cities)
         // const allCities = await city.find({},{});
-        res.status(200).send(users);
+        res.status(200).send(cities);
      }
     
     
