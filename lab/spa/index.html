@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Single-Page App</title>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div id="app-container"></div>
+
+    <script>
+      const routes = {
+        "/": () => "<h1>Welcome to my app</h1>",
+        "/about": () => "<h1>About us</h1>",
+        "/contact": () => "<h1>Contact us</h1>"
+      };
+
+      const renderContent = () => {
+        const path = window.location.pathname;
+        const content = routes[path]();
+        document.querySelector("#app-container").innerHTML = content;
+      };
+
+      window.addEventListener("popstate", renderContent);
+
+      const links = document.querySelectorAll("a");
+      links.forEach(link => {
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          const path = link.getAttribute("href");
+          window.history.pushState({}, "", path);
+          renderContent();
+        });
+      });
+ 
+      renderContent();
+    </script>
+  </body>
+</html>

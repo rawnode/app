@@ -12,7 +12,8 @@
 */
 
 module.exports = app => {
+        
+    require("./cityRouter")(app);        
+    require("./homeRouter")(app);        
     
-  require("./homeRouter")(app);        
-
 }

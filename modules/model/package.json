@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "description": "model",
   "main": "index.js",
+  "private": true,
   "bin": {
-    "model": "bin/index.js"
+    "sample": "bin/index.js"
   },
   "directories": {
     "doc": "docs",
@@ -12,26 +13,26 @@
     "test": "test"
   },
   "scripts": {
-    "test": "test"
+    "test": "test --globals",
+    "coverage": "test run --coverage",
+    "environment": "node"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/rawnodejs/model.git"
+    "url": "git+ssh://git@gitlab.com/mongodb-model/sample.git"
   },
   "keywords": [
-    "raw-nodejs-model",
-    "mongodb-model"
+    "model",
+    "package",
+    "module"
   ],
-  "author": "Ericson S. Weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
+  "author": "Ericson S. weah <ericson.weah@gmail.com> (https://www.ericsonweah.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rawnodejs/model/issues"
+    "url": "https://gitlab.com/mongodb-model/sample/issues"
   },
-  "homepage": "https://github.com/rawnodejs/model#readme",
+  "homepage": "https://gitlab.com/mongodb-model/sample#readme",
   "dependencies": {
-    "base": "./modules/base",
-    "dotenv": "./modules/dotenv",
-    "mongosh": "./modules/mongosh",
-    "query": "./modules/query"
+    "dotenv": "./modules/dotenv"
   }
 }

@@ -1,6 +1,13 @@
 "use strict";
-      
+require('dotenv').config();
+
 const Router = require('../modules/router');
+
+const CityControllers = require('../app/controllers/http/CityController')
+const {index} = new CityControllers
+
+
+
 /*
 |--------------------------------------------------------------------------
 | User Web Routes
@@ -12,11 +19,24 @@ const Router = require('../modules/router');
 | Now create something great!
 |
 */
-module.exports = app => {  
-                      
-   const Route = new Router(app);
-                  
-    Route.get("/", (req, res, next) => {
-        res.status(200).send({welcome: 'Welcome to raw nodejs'});
-    });  
+module.exports = app => {
+
+    const Route = new Router(app);
+
+
+
+
+
+    Route.get('/',index)
+    // Route.get('/me',(req, res, next) => res.status(200).send({home:  'Welcome', message: 'Welcome Home'}))
+    // Route.get('/post',(req, res, next) => res.status(200).send({home:  'Welcome', message: 'Welcome Home Posts'}))
+    // Route.get('/city',(req, res, next) => res.status(200).send({home:  'Welcome', message: 'Welcome Home Posts'}))
+
+    // Route.get("/", (req, res, next) => {
+    //     res.status(200).send({ welcome: 'Welcome to raw nodejs' });
+    // });
+
+    // Route.get("/posts", (req, res, next) => {
+    //     res.status(200).send( { title: 'Hello World' } )
+    // });
 }

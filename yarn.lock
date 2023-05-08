@@ -2,5 +2,10 @@
 # yarn lockfile v1
 
 
-"@zerodependency/app@./":
+dotenv@./modules/dotenv:
   version "0.0.0"
+
+mongosh@./modules/mongosh:
+  version "0.0.0"
+  dependencies:
+    dotenv "./modules/dotenv"

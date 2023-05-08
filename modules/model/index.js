@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 "use strict";
 
 /**
@@ -22,252 +20,156 @@
 
 
 
+require('dotenv').config();
+const { exec } = require('child_process');
 
-require('../dotenv').config();
+const fs = require('fs')
 
-const { Readable } = require('stream')
+// const QueryWriter = require('./src/QueryWriter')
+const findQueryWriter = require('./src/db/queryWriters/findQueryWriter');
 
-const { createWriteStream, createReadStream, unlink, existsSync } = require('fs')
-const util = require('node:util');
-const exec = util.promisify(require('node:child_process').exec)
+class Model extends require("./base") {
 
-const mongosh = require('mongosh');
-class Model extends require("base") {
+    constructor(...arrayOfObjects) {
 
-  constructor(...arrayOfObjects) {
+        super({ objectMode: true, encoding: "utf-8", autoDestroy: true });
 
-    super({ objectMode: true, encoding: "utf-8", autoDestroy: true });
-
-    arrayOfObjects.forEach(option => {
-      if (Object.keys(option).length > 0) {
-        Object.keys(option).forEach((key) => { if (!this[key]) this[key] = option[key]; })
-      }
-    });
-
-    // auto bind methods
-    this.autobind(Model);
-    // auto invoke methods
-    this.autoinvoker(Model);
-    // add other classes method if methods do not already exist. Argument order matters!
-    // this.methodizer(QueryPath, Query,Executer);
-    //Set the maximum number of listeners to infinity
-    this.setMaxListeners(Infinity);
-  }
-  path(path = '', base = process.cwd()) {
-    return require('path').join(base, path)
-  }
-
-
-
-  filePath(path = '', base = process.cwd()) { return require('path').join(base, path) }
-
-  executableFilePath(path = this.filePath('/databases/' + path), extension = 'js') { return existsSync(`${this.filePath('/databases/' + path)}.${extension}`) ? `${this.filePath('/databases/' + path)}-${Date.now()}.${extension}` : `${this.filePath('/databases/' + path)}.${extension}` };
-
-  promisedResult(path, jsonPath) {
-
-    return new Promise((resolve, reject) => {
-
-      const readable = createReadStream(jsonPath, 'utf-8');
-      readable.on('data', (data) => resolve(JSON.parse(data)));
-      // Listen for the 'end' event to know when the stream has ended
-      readable.on('end', () => {
-        unlink(jsonPath, err => err ? reject(err) : '');
-        unlink(path, err => err ? reject(err) : '');
-        // console.log('Finished reading data from stream.');
-      });
-      // Listen for the 'error' event to handle any errors that occur during reading
-      readable.on('error', (err) => reject(err));
-      
-    })
-  }
-
-  async queryExecutor(fn = mongosh.find, collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')){
-
-    Readable.from(fn(collection)).pipe(createWriteStream(path, 'utf-8'));
-    const run = async (mongoshFile = path) => await exec(`mongosh --file ${mongoshFile}`);
-
-    await run(path);
-
-    return this.promisedResult(path, jsonPath);
-  }
-
-  async queryByIdExecutor(id = '635919e22bc9cdd44701eedb', fn = mongosh.find, collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')){
-
-    Readable.from(fn(id, collection)).pipe(createWriteStream(path, 'utf-8'));
-    const run = async (mongoshFile = path) => await exec(`mongosh --file ${mongoshFile}`);
-
-    await run(path);
-
-    return this.promisedResult(path, jsonPath);
-  }
-
-  async find(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
-    return this.queryExecutor(mongosh.find, collection = this.collection, path, jsonPath);
-  }
-  async findOne(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
-    return this.queryExecutor(mongosh.findOne, collection = this.collection, path, jsonPath);
-   
-  }
-  async findOneLatest(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
-    return this.queryExecutor(mongosh.findOneLatest, collection = this.collection, path, jsonPath);
-  }
-  async findLatestOne(collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
-    return this.queryExecutor(mongosh.findOneLatest, collection = this.collection, path, jsonPath);
-  }
-  async findById(id = 'queryByIdExecutor', collection = this.collection, path = this.executableFilePath(collection, 'js'), jsonPath = this.executableFilePath(collection, 'json')) {
-    return this.queryByIdExecutor(id, mongosh.findById, collection = this.collection, path, jsonPath);
-  }
-
-  /**
- * @name autobinder
- * @function
- *
- * @param {Object|Function|Class} className the class whose methods to be bound to it
- *
- * @description auto sets and auto binds every and all methods for the corresponding class (except the constructor)
- *
- * @return does not return anything
- *
- */
-
-  autobinder(className = {}) {
-    for (let method of Object.getOwnPropertyNames(className.prototype)) {
-      if (typeof this[method] === "function" && method !== "constructor") {
-        this[method] = this[method].bind(this);
-      }
-    }
-  }
-
-  /**
-   * @name autobind
-   * @function
-   *
-   * @param {Object|Function|Class} className the class whose methods to be bound to it
-   *
-   * @description auto mounts and auto binds every and all methods for the corresponding class including
-   *  itself(itself mounts and self binds)
-   *
-   * @return does not return anything
-   *
-   */
-
-  autobind(className = {}) {
-    this.autobinder = this.autobinder.bind(this);
-    this.autobinder(className);
-  }
-
-  /**
-   * @name methodizer
-   * @function
-   *
-   * @param {Object|Array} classNameList the class whose methods to be bound to it
-   *
-   * @description get methods from all classes with in-class name list array and makes its own
-   *
-   * @return does not return anything
-   *
-   */
-
-  methodizer(...classNamesList) {
-    if (classNamesList.length === 0) return;
-    for (let className of classNamesList) {
-      for (let method of Object.getOwnPropertyNames(className.prototype)) {
-        if (this[method] === undefined || !this[method]) {
-          if (typeof className.prototype[method] === "function") {
-            this[method] = className.prototype[method];
-            // auto bind each method form className class to this
-            this[method] = this[method].bind(this);
-          }
-        }
-      }
-    }
-  }
-
-
-  /**
-* @name methodizeProperty
-* @function
-*
-* @param {Object|Array} classNameList the class whose methods to be bound to it
-*
-* @description get methods from all classes with in-class name list array and makes its own
-*
-* @return does not return anything
-*
-*/
-
-  methodizeProperty(...objectWithMethodList) {
-    if (objectWithMethodList.length === 0) return;
-    objectWithMethodList.forEach(objectWithMethod => {
-      Object.keys(objectWithMethod).forEach(method => {
-        if (!this[method] || this[method] == undefined) {
-          this[method] = objectWithMethod[method];
-          if (typeof (this[method]) === 'function') {
-            this[method] = this[method].bind(this)
-          }
-        }
-      })
-    })
-  }
-
-  /**
- * @name methodizePrototype
- * @function
- *
- * @param {Object|Array} classNameList the class whose methods to be bound to it
- *
- * @description get methods from all classes with in-class name list array and makes its own
- *
- * @return does not return anything
- *
- */
-
-  methodizePrototype(...classNamesList) {
-    if (classNamesList.length === 0) return;
-    for (let className of classNamesList) {
-      for (let method of Object.getOwnPropertyNames(className)) {
-        if (this[method] === undefined || !this[method]) {
-          if (typeof className[method] === "function") {
-            this[method] = className[method]
-            if (typeof (this[method]) === 'function') {
-              this[method] = this[method].bind(this)
+        arrayOfObjects.forEach(option => {
+            if (Object.keys(option).length > 0) {
+                Object.keys(option).forEach((key) => { if (!this[key]) this[key] = option[key]; })
             }
-          }
-        }
-      }
-    }
-  }
-  config() {
-    if (!this.db) this.db = process.env.DB_NAME
-    if (!this.connection) this.connection = process.env.DB_CONNECTION
-    if (this.connection && this.url && this.db) this.url = `${this.connection}/${this.db}`
-    if (!this.url) this.url = process.env.DB_URL
-    if (!this.collection) this.collection = 'users';
-    // if(!this.url) this.url = `${process.env.DB_CONNECTION}/${process.env.DB_NAME}`
-  }
-  /**
-   * @name autoinvoked
-   * @function
-   *
-   * @param {Object|Function|Class} className the class whose methods to be bound to it
-   *
-   * @description auto sets the list of methods to be auto invoked
-   *
-   * @return does not return anything
-   *
-   */
+        });
 
-  autoinvoked() {
-    return ['config'];
-  }
+        // auto bind methods
+        this.autobind(Model);
+        // auto invoke methods
+        this.autoinvoker(Model);
+        // add other classes method if methods do not already exist. Argument order matters!
+        // this.methodizer(QueryWriter);
+        //Set the maximum number of listeners to infinity
+        this.setMaxListeners(Infinity);
+    }
+
+    path(path = '', base = process.cwd()) {
+        return require('path').join(base, path)
+    }
+
+    queryError () {
+        this.emit("find-error", { error: "input query must be an object" });
+        this.emit("find-error", { error: "input query must be an object" });
+        return { error: "input query must be an object" };
+    }
+
+    isValidObjectId(id) {
+        return /^[0-9a-fA-F]{24}$/.test(id);
+      }
+      
+    idError () {
+        if(!this.isValidObjectId(id)) return `Id must be a string of 12 bytes or a string of 24 hex characters or an integer!`;
+        this.emit("findById-error", { error: "input query must be an object" });
+        this.emit("findById-error", { error: "input query must be an object" });
+        return { error: "input id must be an string" };
+    }
+    codeError () {
+        this.emit("findById-error", { error: "input query must be an object" });
+        this.emit("findById-error", { error: "input query must be an object" });
+        return { error: "input id must be an string" };
+    }
+    emailError () {
+        this.emit("findById-error", { error: "input query must be an object" });
+        this.emit("findById-error", { error: "input query must be an object" });
+        return { error: "input id must be an string" };
+    }
+    projectionError(){
+        this.emit("find-error", {
+            error: "projection query must be an object",
+        });
+        this.emit("find-error", {
+            error: "projection query must be an object",
+        });
+        return { error: "projection query must be an object" };
+    }
+
+    find(query = {}, projection = {}, collection = this.collection, path = this.path(`/databases/${this.collection}-find.js`)){
+
+        findQueryWriter(query, projection, collection, path)
+
+        return new Promise((resolve, reject) => {
+            exec(`Model --file ${this.path(`/databases/${collection}-find.js`)}`, (error, stdout, stderr) => {
+                if (error) reject(error)
+                if (stdout.length > 0) {
+                    let result;
+                    const readable = fs.createReadStream(this.path(`/databases/${collection}.json`), { encoding: 'utf8', autoClose: true, autoDestroy: true })
+                    readable.on('data', chunk => result = JSON.parse(chunk))
+                    readable.on('end', () => {
+                        // if(fs.existsSync(this.path(`/databases/${collection}.json`))) fs.unlink(this.path(`/databases/${collection}.json`), error => error ? reject(error) : resolve(result));
+                        // if(fs.existsSync(this.path(`/databases/${collection}-find.js`)))   fs.unlink(this.path(`/databases/${collection}-find.js`), error => error ? console.log(error.message) : console.log('Success'));
+                        // fs.unlink(this.path('cities.js'), error => error ? console.log(error.message) : console.log('Success'));
+                      
+                    });
+                    readable.on('error', error => reject(error));
+                }
+            });
+        })
+    }
+
+
+    /**
+     * @name methodizer
+     * @function
+     *
+     * @param {Object|Array} classNameList the class whose methods to be bound to it
+     *
+     * @description get methods from all classes with in-class name list array and makes its own
+     *
+     * @return does not return anything
+     *
+     */
+
+    methodizer(...classNamesList) {
+        if (classNamesList.length === 0) return;
+        for (let className of classNamesList) {
+            for (let method of Object.getOwnPropertyNames(className.prototype)) {
+                if (this[method] === undefined || !this[method]) {
+                    if (typeof className.prototype[method] === "function") {
+                        this[method] = className.prototype[method];
+                        // auto bind each method form className class to this
+                        this[method] = this[method].bind(this);
+                    }
+                }
+            }
+        }
+    }
+
+
+    config() {
+        if (!this.db) this.db = process.env.DB_NAME
+        if (!this.connection) this.connection = process.env.DB_CONNECTION
+        if (this.connection && this.url && this.db) this.url = `${this.connection}/${this.db}`
+        if (!this.url) this.url = process.env.DB_URL
+        if (!this.collection) this.collection = 'users';
+        // if(!this.url) this.url = `${process.env.DB_CONNECTION}/${process.env.DB_NAME}`
+    }
+    /**
+     * @name autoinvoked
+     * @function
+     *
+     * @param {Object|Function|Class} className the class whose methods to be bound to it
+     *
+     * @description auto sets the list of methods to be auto invoked
+     *
+     * @return does not return anything
+     *
+     */
+
+    autoinvoked() {
+        return ['config'];
+    }
 
 }
 
 module.exports = Model;
 
-const City = new Model({ collection: 'cities' })
-
-City.findById('635919e22bc9cdd44701eedb').then(console.log)
 
 
 
