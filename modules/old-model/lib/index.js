@@ -1,1 +1,0 @@
-exports.cleaner = (string = 'string') => { return Array.from(string).filter(el => (el.trim().length !== 0 && el.trim() !== `"` && el.trim() !== `'`)).join(''); }
